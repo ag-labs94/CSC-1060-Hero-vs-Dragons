@@ -142,6 +142,15 @@ public class Main {
             System.out.println("Dragon 3 " + dragon3HP + "HP and deals " + dragon3Damage + " points of damage!");
         }
         else{
+            System.out.println("       .-=========-.\n" +
+                    "                 \\'-=======-'/\n" +
+                    "                 _|   .=.   |_\n" +
+                    "                ((|  LEGEND!  |))\n" +
+                    "                 \\|   /|\\   |/\n" +
+                    "                  \\__ '`' __/\n" +
+                    "                    _`) (`_\n" +
+                    "                  _/_______\\_\n" +
+                    "                 /___________\\");
             System.out.println("You win!");
             System.out.println();
             System.out.print("Hero has " + heroHP + " hit points and " + heroDamage + " of damage!");
