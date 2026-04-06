@@ -2,8 +2,11 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
+
+    static Random rand = new Random();
+    static Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Random rand = new Random();
 
         //Title
         System.out.println("**************************");
@@ -27,107 +30,48 @@ public class Main {
                 "            ///.----..>        \\             _ -~             `.  ^-`  ^-_\n" +
                 "              ///-._ _ _ _ _ _ _}^ - - - - ~                     ~--,   .-~");
 
-        //Splash page
-        String splashScreen = "";
-        System.out.println(splashScreen);
         System.out.println();
 
         //Grab user configuration data points
-        Scanner scanner = new Scanner(System.in);
-
         System.out.print("Enter Hero hit points: ");
         int heroHP = scanner.nextInt();
         System.out.print("Enter Hero damage: ");
         int heroDamage = scanner.nextInt();
 
-
-        int dragon1HP = 100;
-        int dragon1Damage = 20;
-        int dragon2HP = 100;
-        int dragon2Damage = 20;
-        int dragon3HP = 100;
-        int dragon3Damage = 20;
-
-
+        Dragon[] dragons = new Dragon[3];
+        dragons[0] = new Dragon(1000, 200);
+        dragons[1] = new Dragon(1000, 200);
+        dragons[2] = new Dragon(3000, 300);
 
         //Start the battle until all dragons are dead
         boolean heroWins = false;
-        while(true) {
-            System.out.print("Hero has " + heroHP + " hit points and " + heroDamage + " of damage!");
-            System.out.println();
+        while (true) {
+            System.out.println("Hero has " + heroHP + " hit points and " + heroDamage + " of damage!");
 
-            System.out.print("Dragon status: ");
-            System.out.println("Dragon 1 " + dragon1HP + "HP and deals " + dragon1Damage + " points of damage!");
-            System.out.println("Dragon 2 " + dragon2HP + "HP and deals " + dragon2Damage + " points of damage!");
-            System.out.println("Dragon 3 " + dragon3HP + "HP and deals " + dragon3Damage + " points of damage!");
+            printDragonStatus(dragons);
 
-            //When hero hit points less than zero all have died
-
-            if(heroHP < 1){
+            //When hero hit points less than zero
+            if (heroHP < 1) {
                 heroWins = false;
                 break;
             }
 
             //When all Dragons are dead
-            if(dragon1HP < 1 && dragon2HP < 1 && dragon3HP < 1) {
+            if (dragons[0].getHitPoints() < 1 && dragons[1].getHitPoints() < 1 && dragons[2].getHitPoints() < 1) {
                 heroWins = true;
                 break;
             }
-            //Get user input on which dragon
-            int dragonChoice = 0;
-            while(dragonChoice < 1 || dragonChoice > 3) {
-                System.out.println("Hero's turn to attack. Which dragon would you like to attack? (1, 2 ,3)");
-                dragonChoice = scanner.nextInt();
-            }
-            System.out.println("Attacking Dragon " + dragonChoice);
 
-            if(dragonChoice == 1) {
-                if(dragon1HP < 1){
-                    System.out.println("Dragon 1 is dead!");
-                } else {
-                    int heroHits = rand.nextInt(heroDamage);
-                    dragon1HP = dragon1HP - heroHits;
-            }
+            heroAttacksDragon(dragons, heroDamage);
+            heroHP = dragonsAttackHero(dragons, heroHP);
+        }
 
-            }else if(dragonChoice == 2) {
-                if(dragon2HP < 1){
-                System.out.println("Dragon 2 is dead!");
-                }else {
-                    int heroHits = rand.nextInt(heroDamage);
-                    dragon2HP = dragon2HP - heroHits;}
-            }
-            else if(dragonChoice == 3) {
-                if(dragon3HP < 1){
-                    System.out.println("Dragon 3 is dead!");
-                } else {
-                    int heroHits = rand.nextInt(heroDamage);
-                    dragon3HP = dragon3HP - heroHits;}
-            }
-
-            // Dragons attack here
-            if(dragon1HP > 0) {
-                int dragonHits = rand.nextInt(dragon1Damage);
-                heroHP = heroHP - dragonHits;
-            }
-
-            if(dragon2HP > 0) {
-                int dragonHits = rand.nextInt(dragon2Damage);
-                heroHP = heroHP - dragonHits;
-
-            }
-
-            if(dragon3HP > 0) {
-                int dragonHits = rand.nextInt(dragon3Damage);
-                heroHP = heroHP - dragonHits;
-            }
-
-            }
-
-
-
+        //Battle outcome
         System.out.println("Battle outcomes");
         System.out.println("---------------");
-        if(heroWins == false){
+        printDragonStatus(dragons);
+
+        if (!heroWins) {
             System.out.println("You were defeated!");
             System.out.println();
             System.out.println("     _____\n" +
@@ -135,13 +79,7 @@ public class Main {
                     "   |       |\n" +
                     "   | HERO  |\n" +
                     "   |_______|");
-            System.out.print("Hero has " + heroHP + " hit points and " + heroDamage + " of damage!");
-            System.out.println();
-            System.out.println("Dragon 1 " + dragon1HP + "HP and deals " + dragon1Damage + " points of damage!");
-            System.out.println("Dragon 2 " + dragon2HP + "HP and deals " + dragon2Damage + " points of damage!");
-            System.out.println("Dragon 3 " + dragon3HP + "HP and deals " + dragon3Damage + " points of damage!");
-        }
-        else{
+        } else {
             System.out.println("       .-=========-.\n" +
                     "                 \\'-=======-'/\n" +
                     "                 _|   .=.   |_\n" +
@@ -152,18 +90,44 @@ public class Main {
                     "                  _/_______\\_\n" +
                     "                 /___________\\");
             System.out.println("You win!");
-            System.out.println();
-            System.out.print("Hero has " + heroHP + " hit points and " + heroDamage + " of damage!");
-            System.out.println();
-            System.out.println("Dragon 1 " + dragon1HP + "HP and deals " + dragon1Damage + " points of damage!");
-            System.out.println("Dragon 2 " + dragon2HP + "HP and deals " + dragon2Damage + " points of damage!");
-            System.out.println("Dragon 3 " + dragon3HP + "HP and deals " + dragon3Damage + " points of damage!");
         }
-
-        }
-
-
-
-
     }
 
+    private static void heroAttacksDragon(Dragon[] dragons, int heroDamage) {
+        int dragonChoice = 0;
+        while (dragonChoice < 1 || dragonChoice > 3) {
+            System.out.println("Hero's turn to attack. Which dragon would you like to attack? (1, 2, 3)");
+            dragonChoice = scanner.nextInt();
+        }
+
+        //Subtract one from user input to access actual dragon
+        dragonChoice--;
+
+        System.out.println("Attacking Dragon " + (dragonChoice + 1));
+
+        if (dragons[dragonChoice].getHitPoints() < 1) {
+            System.out.println("Dragon " + (dragonChoice + 1) + " is already dead!");
+        } else {
+            int heroHits = rand.nextInt(heroDamage);
+            dragons[dragonChoice].setHitPoints(dragons[dragonChoice].getHitPoints() - heroHits);
+        }
+    }
+
+    private static int dragonsAttackHero(Dragon[] dragons, int heroHP) {
+        for (int i = 0; i < dragons.length; i++) {
+            if (dragons[i].getHitPoints() > 0) {
+                int dragonHits = rand.nextInt(dragons[i].getDamage());
+                heroHP -= dragonHits;
+            }
+        }
+        return heroHP;
+    }
+
+    private static void printDragonStatus(Dragon[] dragons) {
+        System.out.println("Dragons Status");
+        System.out.println("--------------");
+        for (int i = 0; i < dragons.length; i++) {
+            System.out.println("Dragon " + (i + 1) + " " + dragons[i].getHitPoints() + " HP and deals " + dragons[i].getDamage() + " points of damage");
+        }
+    }
+}
