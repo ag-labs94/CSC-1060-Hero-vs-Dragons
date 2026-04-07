@@ -32,26 +32,30 @@ public class Main {
 
         System.out.println();
 
+        Hero hero = new Hero();
         //Grab user configuration data points
         System.out.print("Enter Hero hit points: ");
-        int heroHP = scanner.nextInt();
+        int userInput = scanner.nextInt();
+        hero.setHitPoints(userInput);
+
         System.out.print("Enter Hero damage: ");
-        int heroDamage = scanner.nextInt();
+        userInput = scanner.nextInt();
+        hero.setDamage(userInput);
 
         Dragon[] dragons = new Dragon[3];
-        dragons[0] = new Dragon(1000, 200);
-        dragons[1] = new Dragon(1000, 200);
-        dragons[2] = new Dragon(3000, 300);
+        dragons[0] = new Dragon(1000, 200, 10);
+        dragons[1] = new Dragon(1000, 200, 10);
+        dragons[2] = new Dragon(3000, 300, 40);
 
         //Start the battle until all dragons are dead
         boolean heroWins = false;
         while (true) {
-            System.out.println("Hero has " + heroHP + " hit points and " + heroDamage + " of damage!");
+            System.out.println("Hero has " + hero.getHitPoints() + " hit points and " + hero.getDamage() + " of damage!");
 
             printDragonStatus(dragons);
 
             //When hero hit points less than zero
-            if (heroHP < 1) {
+            if (hero.getHitPoints() < 1) {
                 heroWins = false;
                 break;
             }
@@ -62,8 +66,9 @@ public class Main {
                 break;
             }
 
-            heroAttacksDragon(dragons, heroDamage);
-            heroHP = dragonsAttackHero(dragons, heroHP);
+            heroAttacksDragon(dragons, hero);
+
+            dragonsAttackHero(dragons, hero);
         }
 
         //Battle outcome
@@ -93,7 +98,7 @@ public class Main {
         }
     }
 
-    private static void heroAttacksDragon(Dragon[] dragons, int heroDamage) {
+    private static void heroAttacksDragon(Dragon[] dragons, Hero hero) {
         int dragonChoice = 0;
         while (dragonChoice < 1 || dragonChoice > 3) {
             System.out.println("Hero's turn to attack. Which dragon would you like to attack? (1, 2, 3)");
@@ -108,19 +113,27 @@ public class Main {
         if (dragons[dragonChoice].getHitPoints() < 1) {
             System.out.println("Dragon " + (dragonChoice + 1) + " is already dead!");
         } else {
-            int heroHits = rand.nextInt(heroDamage);
+            int heroHits = rand.nextInt(hero.getDamage());
             dragons[dragonChoice].setHitPoints(dragons[dragonChoice].getHitPoints() - heroHits);
         }
     }
 
-    private static int dragonsAttackHero(Dragon[] dragons, int heroHP) {
+    private static void dragonsAttackHero(Dragon[] dragons, Hero hero) {
         for (int i = 0; i < dragons.length; i++) {
             if (dragons[i].getHitPoints() > 0) {
+                int critcheck = rand.nextInt(100) + 1;
+                float damageMultiplier = 1.00F;
+
+                if(critcheck <= dragons[i].getCritChance()) {
+                    System.out.println("CRIT HIT!");
+                    damageMultiplier += 0.50F;
+                }
                 int dragonHits = rand.nextInt(dragons[i].getDamage());
-                heroHP -= dragonHits;
+                hero.setHitPoints(hero.getHitPoints() - (int) ( (float) dragonHits * damageMultiplier));
             }
         }
-        return heroHP;
+
+
     }
 
     private static void printDragonStatus(Dragon[] dragons) {
