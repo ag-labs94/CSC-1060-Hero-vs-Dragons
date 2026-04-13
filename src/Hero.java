@@ -2,6 +2,11 @@ public class Hero {
     private int hitPoints;
     private int damage;
 
+    public Hero(int hitPoints, int damage) {
+        this.hitPoints = hitPoints;
+        this.damage = damage;
+    }
+
     public int getHitPoints() {
         return hitPoints;
     }
