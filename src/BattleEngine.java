@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -6,6 +7,47 @@ public class BattleEngine {
 
     static Random rand = new Random();
     static Scanner scanner = new Scanner(System.in);
+
+    public static int chooseAction(Hero hero) {
+        System.out.println();
+        System.out.println("--- Hero's Turn ---");
+        System.out.println("1) Attack");
+        System.out.println("2) Heal (" + hero.getHealsRemaining() + " left)");
+        System.out.println("3) Check Inventory");
+        System.out.print("Choice: ");
+        return scanner.nextInt();
+    }
+    public static void manageInventory(Hero hero) {
+        Inventory inv = hero.getInventory();
+        ArrayList<Item> loot = inv.getLoot();
+
+        System.out.println();
+        System.out.println("--- Inventory ---");
+        System.out.println("Weapon: " + inv.getWeaponName()
+                + " (+" + inv.getWeaponDamage() + " dmg)");
+        System.out.println("Armor:  " + inv.getArmorName()
+                + " (-" + inv.getArmorReduction() + " dmg taken)");
+        System.out.println("Gold:   " + hero.getGold());
+
+        if (loot.isEmpty()) {
+            System.out.println("Loot bag is empty.");
+            return;
+        }
+
+        System.out.println("\nLoot bag:");
+        for (int i = 0; i < loot.size(); i++) {
+            Item item = loot.get(i);
+            System.out.println("  " + (i + 1) + ") " + item.getName()
+                    + " — " + item.getDescription()
+                    + " +" + item.getValue());
+        }
+
+        System.out.println("\nEquip which item? (number, or 0 to cancel)");
+        int choice = scanner.nextInt();
+        if (choice >= 1 && choice <= loot.size()) {
+            inv.equipLoot(choice - 1);
+        }
+    }
 
     public static void heroAttacksDragon(Dragon[] dragons, Hero hero) {
         int dragonChoice = 0;
@@ -24,6 +66,12 @@ public class BattleEngine {
         } else {
             int heroHits = rand.nextInt(hero.getDamage());
             dragons[dragonChoice].setHitPoints(dragons[dragonChoice].getHitPoints() - heroHits);
+
+            //Dragon loot after death
+            if (dragons[dragonChoice].getHitPoints() < 1) {
+                System.out.println("Dragon " + (dragonChoice + 1) + " is dead!");
+                dragons[dragonChoice].dropLoot(hero);
+            }
         }
     }
 
@@ -38,7 +86,9 @@ public class BattleEngine {
                     damageMultiplier += 0.50F;
                 }
                 int dragonHits = rand.nextInt(dragons[i].getDamage());
-                hero.setHitPoints(hero.getHitPoints() - (int) ( (float) dragonHits * damageMultiplier));
+                int rawDamage = (int)((float) dragonHits * damageMultiplier);
+                int finalDamage = Math.max(0,  rawDamage - hero.getInventory().getArmorReduction());
+                hero.setHitPoints(hero.getHitPoints() - finalDamage);
             }
         }
 
@@ -56,24 +106,41 @@ public class BattleEngine {
         boolean heroWins = false;
         while (true) {
             System.out.println("Hero has " + hero.getHitPoints() + " hit points and " + hero.getDamage() + " of damage!");
-
             printDragonStatus(dragons);
 
-            //When hero hit points less than zero
             if (hero.getHitPoints() < 1) {
                 heroWins = false;
                 break;
             }
 
-            //When all Dragons are dead
             if (dragons[0].getHitPoints() < 1 && dragons[1].getHitPoints() < 1 && dragons[2].getHitPoints() < 1) {
                 heroWins = true;
                 break;
             }
 
-            heroAttacksDragon(dragons, hero);
+            int action = chooseAction(hero);
+            boolean tookTurn = false;
 
-            dragonsAttackHero(dragons, hero);
+            switch (action) {
+                case 1:
+                    heroAttacksDragon(dragons, hero);
+                    tookTurn = true;
+                    break;
+                case 2:
+                    hero.heal();
+                    tookTurn = true;
+                    break;
+                case 3:
+                    manageInventory(hero);
+
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+
+            if (tookTurn) {
+                dragonsAttackHero(dragons, hero);
+            }
         }
         return heroWins;
     }
